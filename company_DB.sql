@@ -31,6 +31,7 @@ PRIMARY KEY (id)
 SELECT *
 FROM department;
 SELECT *
-FROM role;
+FROM job;
 SELECT *
 FROM employee;
+
