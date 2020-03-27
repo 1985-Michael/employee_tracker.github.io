@@ -10,13 +10,13 @@ const connection = mysql.createConnection({
     database: "company_DB",
 })
 
-connection.connect(function(err) {
+connection.connect(err => {
     runApplication();
 
 })
 
 function runApplication() {
-    inquirer.prompt({
+    inquirer.prompt([{
         name: "choices",
         type: "list",
         message: "Welcome to Employee Tracker, an App Designed to manage and track your Employees. What would you like to do?",
@@ -31,16 +31,16 @@ function runApplication() {
             "Update Employee",
             "QUIT"
         ]
-    })
+    }])
 
     .then(answer => {
         switch (answer.action) {
 
-            case "View Employees":
+            case "View All Employees":
                 viewEmployees();
                 break;
 
-            case "View all departments":
+            case "View All Departments":
                 viewDepartments();
                 break;
 
@@ -79,261 +79,145 @@ function runApplication() {
 }
 
 function viewEmployees() {
-    connection.query("SELECT employee.id,employee.first_name AS First,employee.last_name AS Last,role.title,role.salary,department.name AS Department FROM employee_db.employee LEFT JOIN employee_db.role ON employee.role_id = role.id LEFT JOIN employee_db.department ON role.department_id = department.id ", function(err, res) {
-        for (var i = 0; i < res.length; i++) {
-            console.log("First Name: " + res[i].first_name + " || Last name: " + res[i].last_name + " || Id: " + res[i].id);
-        }
+    inquirer.prompt([{
+        name: " ViewEmployees",
+        type: "input",
+        message: "Search Employee by name"
 
-        console.table(results);
-        if (err) throw err;
-        console.log(res.length + " employees found!");
-        consoleTable("All Employees:", res);
-        runApplication()
+    }])
 
+    .then(answer => {
+        var query = "SELECT employee.id, SELECT first_name, last_name, id FROM employee WHERE ?";
+        connection.query(query, { last_name: answer.viewEmployees }, (err, res) => {
+            for (var i = 0; i < res.length; i++) {
+                console.log("First Name: " + res[i].first_name + " || Last name: " + res[i].last_name + " || Id: " + res[i].id);
+            }
+
+            runApplication();
+
+        });
     });
-
 }
 
 function viewDepartments() {
-    connection.query("SELECT employee.id,employee.first_name AS First, employee.last_name AS Name,department.name AS Department FROM employee_db.employee LEFT JOIN employee_db.role ON employee.role_id = role.id LEFT JOIN employee_db.department ON role.department_id = department.id", function(err, res) {
-
-        console.table(results);
+    var query = "SELECT * FROM department";
+    connection.query(query, (err, res) => {
         if (err) throw err;
         consoleTable("All Departments:", res);
-        runApplication()
-    });
-
+        runApplication();
+    })
 }
 
 function viewJobs() {
     var query = "SELECT * FROM job";
     connection.query(query, (err, res) => {
-        console.table(results);
         if (err) throw err;
-        consoleTable('All Jobs:', res);
-        runApplication()
-    });
-
+        consoleTable("All jobs:", res);
+        runApplication();
+    })
 }
 
 function addEmployee() {
-    connection.query("SELECT * FROM job", (err, results) => {
-        if (err) throw err;
-        inquirer.prompt(
+    inquirer.prompt([{
+        name: "addEmployee",
+        type: "input",
+        question: "Add New Employee?"
 
-            [{
+    }])
 
-                    name: "first_name",
-                    type: "input",
-                    question: "What is the employee's first name?"
+    .then(answer => {
+        console.log(answer)
+        const addMember = answer.employeeAdd;
+        const firstNameLastName = addMember.split(" ");
+        console.log(firstNameLastName);
+        var query = "INSERT INTO employee (first_name, last_name) VALUES ?";
+        connection.query(query, [
+                [firstNameLastName]
 
-                },
+            ],
 
-                {
+            (err, res) => {
+                consoleTable("All employee:", res);
+                runApplication();
 
-                    name: "last_name",
-                    type: "input",
-                    question: "What is the employee's last name?"
-
-                },
-
-
-                {
-                    name: "choice",
-                    type: "rawlist",
-                    choices: function() {
-                        var resultsArray = [];
-                        for (var i = 0; i < results.length; i++) {
-                            resultsArray.push(results[i].title);
-                        }
-
-                        return resultsArray;
-                    },
-
-                    question: "What is the employee's job?"
-
-                },
-
-            ]).then(function(res) {
-
-            for (var i = 0; i < results.length; i++) {
-                if (results[i].title === res.choice) {
-                    res.role_id = results[i].id;
-                }
-            }
-            var query = "Add newly created Employee?"
-            const VALUES = {
-                first_name: res.first_name,
-                last_name: res.last_name,
-                role_id: res.role_id
-
-            }
-
-            connection.query(query, VALUES, err => {
-                if (err) throw err;
-                console.log("Succesfully Added A New Employee!");
-                runApplication()
-            })
-        })
+            });
     })
 }
-
 
 function addDepartment() {
-    inquirer.prompt({
-        name: "newDepartment",
+    inquirer.prompt([{
+        name: "addDepartment",
         type: "input",
-        question: "Which Department would you like to add?"
-    })
+        question: "Add New Department?"
 
-    .then(result => {
+    }])
+
+    .then(answer => {
+        connection.query(
+            "INSERT INTO department SET ?", {
+                name: answer.addDepartment
+            }
+        );
         var query = "SELECT * FROM department";
-        connection.query(query, [{ name: result.newDepartment }], err => {
+        connection.query(query, (err, res) => {
             if (err) throw err;
-            consoleTable("New Department Created!");
-            runApplication()
-        });
+            consoleTable("All Departments:", res);
+            runApplication();
+        })
     })
-}
-
-function addJob() {
-    inquirer.prompt({
-            name: "title",
-            type: "input",
-            message: ["Job Name"]
-        })
-        .then(answer => {
-            let title = answer.title;
-
-            inquirer.prompt({
-                name: "salary",
-                type: "input",
-                message: ["How much money does this job make?"]
-            })
-
-            .then(answer => {
-                let salary = answer.salary;
-                inquirer.prompt({
-                    name: "department_id",
-                    type: "input",
-                    message: ["Enter new Job ID?"]
-
-                })
-
-                .then(answer => {
-                    let department_id = answer.department_id;
-                    console.log(`title: ${title} salary: ${salary} department id: ${department_id}`);
-                    var query = "INSERT INTO job (title, salary, department_id) VALUES ?";
-                    connection.query(query, [
-                            [
-                                [title, salary, department_id]
-                            ]
-                        ],
-
-                        function(err, res) {
-                            if (err) {
-                                console.log(err);
-                            }
-
-                            runApplication();
-
-                        });
-                })
-            })
-        })
 }
 
 function removeEmployee() {
-    inquirer.prompt({
-            name: "RemoveEmployee",
-            type: "input",
-            message: "Enter Employee's ID",
+    inquirer.prompt([{
+        name: "removeEmployee",
+        type: "input",
+        question: "Remove an Employee?",
 
+    }])
+
+    .then(answer => {
+        console.log(answer);
+        var query = "DELETE FROM employee WHERE ?";
+        var newEmployee = Number(answer.removeEmployee);
+        console.log(newEmployee);
+        connection.query(query, { id: newEmployee }, (err, res) => {
+            runAplication();
+
+        });
+    });
+}
+
+function updateEmployee() {
+    console.log("Update Employee");
+    inquirer.prompt({
+            name: "UpdateEmployee",
+            type: "input",
+            question: "Update Employee?",
         })
         .then(answer => {
-            console.log(answer);
-            let query = "This will Terminate and Delete Employee?";
-            var defaultId = Number(answer.employeeRemove);
-            console.log(defaultId);
-            connection.query(query, { id: defualtId }, function(err, res) {
-                runApplication();
+            const id = answer.UpdateEmployee;
 
+            inquirer.prompt([{
+                name: "jobId",
+                type: "input",
+                question: "Enter Job id",
+
+            }])
+
+            .then(answer => {
+                const jobId = answer.jobId;
+
+                var query = "UPDATE employee SET job_id=? WHERE id=?";
+                connection.query(query, [jobId, id], (err, res) => {
+                    if (err) {
+                        console.log(err);
+                    }
+                    runApplication();
+                });
             });
         });
 }
 
-function updateEmployee() {
-    const jobQuery = "SELECT * FROM job;";
-    const departmentQuery = "SELECT * FROM department;";
-    connection.query(jobQuery, (err, job) => {
-        connection.query(departmentQuery, function(err, departments) {
-            if (err) throw err;
-            inquirer.prompt([{
-                    name: "newJob",
-                    type: "rawlist",
-                    choices: function() {
-                        var arrayChoices = [];
-                        for (var i = 0; i < job.length; i++) {
-                            arrayChoices.push(job[i].title);
-                        }
-
-                        return arrayChoices;
-
-                    },
-
-                    message: "What job needs to be updated?"
-                },
-                {
-                    name: "updateSalary",
-                    type: "input",
-                    message: "How much does this job make?"
-
-                },
-                {
-                    name: "choice",
-                    type: "rawlist",
-                    choices: function() {
-                        var arrayChoices = [];
-                        for (var i = 0; i < departments.length; i++) {
-                            rrayChoices.push(departments[i].name);
-
-                        }
-
-                        return arrayChoices;
-
-                    },
-
-                    message: "Change Department?"
-
-                },
-
-            ])
-
-            .then(result => {
-                for (var i = 0; i < departments.length; i++) {
-                    if (departments[i].name === result.choice) {
-                        result.department_id = departments[i].id;
-
-                    }
-                }
-
-                var query = "UPDATE job SET title=?,salary= ? WHERE department_id= ?"
-                const VALUES = [
-                    { title: result.newJob },
-                    { salary: result.updateSalary },
-                    { department_id: result.department_id }
-                ]
-
-                connection.query(query, VALUES, err => {
-                    if (err) throw err;
-                    console.table("Successfuly Updated Job!");
-                    runApplication()
-                });
-
-            })
-        })
-    })
-}
 
 function quitApp() {
     connection.end();
