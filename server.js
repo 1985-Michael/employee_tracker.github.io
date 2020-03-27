@@ -79,8 +79,7 @@ function runApplication() {
 }
 
 function viewEmployees() {
-    var query = "SELECT first_name, last_name, id FROM employee WHERE ?";
-    connection.query(query, { last_name: answer.employeeView }, function(err, res) {
+    connection.query("SELECT employee.id,employee.first_name AS First,employee.last_name AS Last,role.title,role.salary,department.name AS Department FROM employee_db.employee LEFT JOIN employee_db.role ON employee.role_id = role.id LEFT JOIN employee_db.department ON role.department_id = department.id ", function(err, res) {
         for (var i = 0; i < res.length; i++) {
             console.log("First Name: " + res[i].first_name + " || Last name: " + res[i].last_name + " || Id: " + res[i].id);
         }
@@ -96,8 +95,8 @@ function viewEmployees() {
 }
 
 function viewDepartments() {
-    var query = "SELECT * FROM department";
-    connection.query(query, (err, res) => {
+    connection.query("SELECT employee.id,employee.first_name AS First, employee.last_name AS Name,department.name AS Department FROM employee_db.employee LEFT JOIN employee_db.role ON employee.role_id = role.id LEFT JOIN employee_db.department ON role.department_id = department.id", function(err, res) {
+
         console.table(results);
         if (err) throw err;
         consoleTable("All Departments:", res);
@@ -111,7 +110,7 @@ function viewJobs() {
     connection.query(query, (err, res) => {
         console.table(results);
         if (err) throw err;
-        consoleTable('All roles:', res);
+        consoleTable('All Jobs:', res);
         runApplication()
     });
 
@@ -124,7 +123,7 @@ function addEmployee() {
 
             [{
 
-                    name: "EmployeeName",
+                    name: "first_name",
                     type: "input",
                     question: "What is the employee's first name?"
 
@@ -132,7 +131,7 @@ function addEmployee() {
 
                 {
 
-                    name: "EmployeeName",
+                    name: "last_name",
                     type: "input",
                     question: "What is the employee's last name?"
 
@@ -188,10 +187,8 @@ function addDepartment() {
     })
 
     .then(result => {
-
-        var query = "Add newly created Department?"
-        console.log(query)
-        connection.query(query, [{ name: result.newDpt }], err => {
+        var query = "SELECT * FROM department";
+        connection.query(query, [{ name: result.newDepartment }], err => {
             if (err) throw err;
             consoleTable("New Department Created!");
             runApplication()
