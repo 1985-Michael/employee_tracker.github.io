@@ -19,11 +19,11 @@ department_id
 
 VALUES
 
-("Sales", 60,000, 2),
-("Designer", 55,000, 1),
-("Web Developer", 100000, 2),
-("Finance", 80000, 2),
-("Controller", 120000, 1);
+("Sales", 60,000, 1),
+("Designer", 55,000, 2),
+("Web Developer", 100000, 3),
+("Finance", 80000, 4),
+("Controller", 120000, 5);
     
 INSERT INTO employee
 
@@ -35,9 +35,9 @@ job_id
 
 VALUES
 
-("Marnie", "Mandel", 2),
-("Mike", "Myers", 1),
-("Bruno", "Bokens", 4),
-("Greg", "Mandel", 5),
-("Stephanie", "Bokens",6);
+("Marnie", "Mandel", 1),
+("Mike", "Myers", 2),
+("Bruno", "Bokens", 3),
+("Greg", "Mandel", 4),
+("Stephanie", "Bokens",5);
    
