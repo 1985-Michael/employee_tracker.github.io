@@ -5,7 +5,8 @@ USE company_DB;
 CREATE TABLE employee
 (
 id INTEGER NOT NULL AUTO_INCREMENT,
-name VARCHAR (30) NULL,
+first_name VARCHAR (30) NULL,
+last_name VARCHAR (30) NULL,
 role_id INT (30) NULL,
 manager_id INT (30) NULL,
 PRIMARY KEY (id)
@@ -25,7 +26,6 @@ title VARCHAR (30) NOT NULL,
 salary DECIMAL (10,2) NOT NULL,
 department_id INT NOT NULL,
 PRIMARY KEY (id)
-
 );
 
 SELECT *

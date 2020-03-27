@@ -7,7 +7,7 @@ const connection = mysql.createConnection({
     port: 3306,
     user: "root",
     password: "Michael27$",
-    database: "company_DB"
+    database: "company_DB",
 })
 
 connection.connect(function(err) {
@@ -33,7 +33,7 @@ function runApplication() {
         ]
     })
 
-    .then(function(answer) {
+    .then(answer => {
         switch (answer.action) {
 
             case "View Employees":
@@ -79,65 +79,83 @@ function runApplication() {
 }
 
 function viewEmployees() {
-    var query = "SELECT * FROM employee?";
-    connection.query(query, function(err, res) {
+    var query = "SELECT first_name, last_name, id FROM employee WHERE ?";
+    connection.query(query, { last_name: answer.employeeView }, function(err, res) {
+        for (var i = 0; i < res.length; i++) {
+            console.log("First Name: " + res[i].first_name + " || Last name: " + res[i].last_name + " || Id: " + res[i].id);
+        }
+
         console.table(results);
         if (err) throw err;
         console.log(res.length + " employees found!");
-        console.table("All Employees:", res);
+        consoleTable("All Employees:", res);
         runApplication()
+
     });
+
 }
 
 function viewDepartments() {
     var query = "SELECT * FROM department";
-    connection.query(query, function(err, res) {
+    connection.query(query, (err, res) => {
         console.table(results);
         if (err) throw err;
-        console.table("All Departments:", res);
+        consoleTable("All Departments:", res);
         runApplication()
     });
+
 }
 
 function viewJobs() {
     var query = "SELECT * FROM job";
-    connection.query(query, function(err, res) {
+    connection.query(query, (err, res) => {
         console.table(results);
         if (err) throw err;
-        console.table('All roles:', res);
+        consoleTable('All roles:', res);
         runApplication()
     });
+
 }
 
-
 function addEmployee() {
-    connection.query("SELECT * FROM job", function(err, results) {
+    connection.query("SELECT * FROM job", (err, results) => {
         if (err) throw err;
-        inquirer.prompt([{
+        inquirer.prompt(
 
-                name: "EmployeeName",
-                type: "input",
-                message: "What is the employee's full name?"
+            [{
 
-            },
+                    name: "EmployeeName",
+                    type: "input",
+                    question: "What is the employee's first name?"
 
-            {
-                name: "choice",
-                type: "rawlist",
-                choices: function() {
-                    var resultsArray = [];
-                    for (var i = 0; i < results.length; i++) {
-                        resultsArray.push(results[i].title);
-                    }
-
-                    return resultsArray;
                 },
 
-                message: "What is the employee's job?"
+                {
 
-            },
+                    name: "EmployeeName",
+                    type: "input",
+                    question: "What is the employee's last name?"
 
-        ]).then(function(res) {
+                },
+
+
+                {
+                    name: "choice",
+                    type: "rawlist",
+                    choices: function() {
+                        var resultsArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            resultsArray.push(results[i].title);
+                        }
+
+                        return resultsArray;
+                    },
+
+                    question: "What is the employee's job?"
+
+                },
+
+            ]).then(function(res) {
 
             for (var i = 0; i < results.length; i++) {
                 if (results[i].title === res.choice) {
@@ -146,12 +164,13 @@ function addEmployee() {
             }
             var query = "Add newly created Employee?"
             const VALUES = {
-                full_name: res.full_name,
+                first_name: res.first_name,
+                last_name: res.last_name,
                 role_id: res.role_id
 
             }
 
-            connection.query(query, VALUES, function(err) {
+            connection.query(query, VALUES, err => {
                 if (err) throw err;
                 console.log("Succesfully Added A New Employee!");
                 runApplication()
@@ -165,16 +184,16 @@ function addDepartment() {
     inquirer.prompt({
         name: "newDepartment",
         type: "input",
-        message: "Which Department would you like to add?"
+        question: "Which Department would you like to add?"
     })
 
-    .then(function(result) {
+    .then(result => {
 
         var query = "Add newly created Department?"
         console.log(query)
-        connection.query(query, [{ name: result.newDpt }], function(err) {
+        connection.query(query, [{ name: result.newDpt }], err => {
             if (err) throw err;
-            console.table("New Department Created!");
+            consoleTable("New Department Created!");
             runApplication()
         });
     })
@@ -186,7 +205,7 @@ function addJob() {
             type: "input",
             message: ["Job Name"]
         })
-        .then(function(answer) {
+        .then(answer => {
             let title = answer.title;
 
             inquirer.prompt({
@@ -195,9 +214,8 @@ function addJob() {
                 message: ["How much money does this job make?"]
             })
 
-            .then(function(answer) {
+            .then(answer => {
                 let salary = answer.salary;
-
                 inquirer.prompt({
                     name: "department_id",
                     type: "input",
@@ -205,7 +223,7 @@ function addJob() {
 
                 })
 
-                .then(function(answer) {
+                .then(answer => {
                     let department_id = answer.department_id;
                     console.log(`title: ${title} salary: ${salary} department id: ${department_id}`);
                     var query = "INSERT INTO job (title, salary, department_id) VALUES ?";
@@ -235,7 +253,7 @@ function removeEmployee() {
             message: "Enter Employee's ID",
 
         })
-        .then(function(answer) {
+        .then(answer => {
             console.log(answer);
             let query = "This will Terminate and Delete Employee?";
             var defaultId = Number(answer.employeeRemove);
@@ -250,7 +268,7 @@ function removeEmployee() {
 function updateEmployee() {
     const jobQuery = "SELECT * FROM job;";
     const departmentQuery = "SELECT * FROM department;";
-    connection.query(jobQuery, function(err, roles) {
+    connection.query(jobQuery, (err, job) => {
         connection.query(departmentQuery, function(err, departments) {
             if (err) throw err;
             inquirer.prompt([{
@@ -258,8 +276,8 @@ function updateEmployee() {
                     type: "rawlist",
                     choices: function() {
                         var arrayChoices = [];
-                        for (var i = 0; i < roles.length; i++) {
-                            arrayChoices.push(roles[i].title);
+                        for (var i = 0; i < job.length; i++) {
+                            arrayChoices.push(job[i].title);
                         }
 
                         return arrayChoices;
@@ -294,7 +312,7 @@ function updateEmployee() {
 
             ])
 
-            .then(function(result) {
+            .then(result => {
                 for (var i = 0; i < departments.length; i++) {
                     if (departments[i].name === result.choice) {
                         result.department_id = departments[i].id;
@@ -309,7 +327,7 @@ function updateEmployee() {
                     { department_id: result.department_id }
                 ]
 
-                connection.query(query, VALUES, function(err) {
+                connection.query(query, VALUES, err => {
                     if (err) throw err;
                     console.table("Successfuly Updated Job!");
                     runApplication()
