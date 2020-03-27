@@ -1,5 +1,5 @@
 const inquirer = require("inquirer");
-const mysql = require("mysql");
+let mysql = require("mysql");
 const consoleTable = require("console.table")
 
 const connection = mysql.createConnection({
@@ -26,7 +26,6 @@ function runApplication() {
             "View Job",
             "Add New Employee",
             "Add New Department",
-            "Add New Job",
             "Remove Employee",
             "Update Employee",
             "QUIT"
@@ -87,7 +86,7 @@ function viewEmployees() {
     }])
 
     .then(answer => {
-        var query = "SELECT employee.id, SELECT first_name, last_name, id FROM employee WHERE ?";
+        var query = "SELECT job_id, employee, SELECT first_name, last_name, id FROM employee WHERE ?";
         connection.query(query, { last_name: answer.viewEmployees }, (err, res) => {
             for (var i = 0; i < res.length; i++) {
                 console.log("First Name: " + res[i].first_name + " || Last name: " + res[i].last_name + " || Id: " + res[i].id);
@@ -100,7 +99,7 @@ function viewEmployees() {
 }
 
 function viewDepartments() {
-    var query = "SELECT * FROM department";
+    var query = "SELECT * FROM department, employee, job_id, department_id ";
     connection.query(query, (err, res) => {
         if (err) throw err;
         consoleTable("All Departments:", res);
@@ -109,7 +108,7 @@ function viewDepartments() {
 }
 
 function viewJobs() {
-    var query = "SELECT * FROM job";
+    var query = "SELECT * FROM job, employee, job_id, title, salary";
     connection.query(query, (err, res) => {
         if (err) throw err;
         consoleTable("All jobs:", res);
@@ -118,30 +117,53 @@ function viewJobs() {
 }
 
 function addEmployee() {
-    inquirer.prompt([{
-        name: "addEmployee",
-        type: "input",
-        question: "Add New Employee?"
+    inquirer.prompt([
 
-    }])
+        {
+
+            name: "first_name",
+            type: "input",
+            question: "Enter New Employee's first name?"
+
+        },
+
+        {
+            name: "last_name",
+            type: "input",
+            question: "Enter New Employee's last name?"
+
+        },
+
+        {
+
+            name: "job_id",
+            type: "input",
+            question: "What is the New Employee's job?"
+
+        }
+
+    ])
 
     .then(answer => {
-        console.log(answer)
-        const addMember = answer.employeeAdd;
-        const firstNameLastName = addMember.split(" ");
-        console.log(firstNameLastName);
-        var query = "INSERT INTO employee (first_name, last_name) VALUES ?";
-        connection.query(query, [
-                [firstNameLastName]
+        connection.query(
+            "INSERT INTO employee SET ?",
 
-            ],
+            {
+                first_name: answer.first_name,
+                last_name: answer.last_name,
+                role_id: answer.job_id
+            },
 
-            (err, res) => {
-                consoleTable("All employee:", res);
+            function(err) {
+                if (err) throw err;
+                console.log("Succesfully, created New Employee");
                 runApplication();
 
-            });
-    })
+            }
+        );
+    });
+
+
 }
 
 function addDepartment() {
@@ -158,7 +180,7 @@ function addDepartment() {
                 name: answer.addDepartment
             }
         );
-        var query = "SELECT * FROM department";
+        var query = "SELECT * FROM department, department_id";
         connection.query(query, (err, res) => {
             if (err) throw err;
             consoleTable("All Departments:", res);
@@ -210,7 +232,7 @@ function updateEmployee() {
                 var query = "UPDATE employee SET job_id=? WHERE id=?";
                 connection.query(query, [jobId, id], (err, res) => {
                     if (err) {
-                        console.log(err);
+                        console.log("Updated Employee Info");
                     }
                     runApplication();
                 });
