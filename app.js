@@ -120,19 +120,22 @@ function viewemployees() {
 
 function addemployee() {
     inquirer.prompt([{
-            name: "first_name",
+
             type: "input",
-            message: "first name of the new employee"
+            message: "first name of the new employee",
+            name: "first_name"
         },
         {
+
+            type: "input",
+            message: "last name of the employee",
             name: "last_name",
-            type: "input",
-            message: "last name of the employee"
         },
         {
+
+            type: "input",
+            message: "Enter the job this employee will have",
             name: "job_id",
-            type: "number",
-            message: "Enter the job this employee will have"
         },
         {
 
@@ -141,10 +144,13 @@ function addemployee() {
 
     .then(answer => {
         var query = "INSERT INTO employee (first_name, last_name, job_id) VALUES(?,?,?)";
+        "INSERT INTO department SET ?", {
+            name: answer.first_name,
+            name: answer.last_name,
+            name: answer.job_id
+        },
         connection.query(query, [answer.first_name, answer.last_name, answer.job_id], (err, res) => {
-            if (err) throw err;
             connection.query("SELECT * FROM employee WHERE last_name=?", answer.last_name, (err, res) => {
-                if (err) throw err;
                 console.table(answer);
 
                 runApplication();
@@ -170,8 +176,11 @@ function updateemployee() {
 
     .then(answer => {
         var query = "UPDATE employee SET job_id = ? WHERE id = ?;";
-        connection.query(query, [answer.newRole, answer.employee], (err, res) => {
-            if (err) throw err;
+        "INSERT INTO department SET ?", {
+            name: answer.update,
+            name: answer.newjob
+        },
+        connection.query(query, [answer.newjob, answer.employee], (err, res) => {
             console.log("Job has been updated");
             console.table(answer);
 
@@ -185,27 +194,30 @@ function updateemployee() {
 function addjob() {
     inquirer.prompt([{
             type: "input",
-            message: "What's the name of the role?",
+            message: "job name?",
             name: "jobName"
         },
         {
             type: "input",
-            message: "What is the salary for this role?",
+            message: "job salary?",
             name: "salary"
         },
         {
             type: "input",
-            message: "What is the department id number?",
-            name: "departmentID"
+            message: "department id?",
+            name: "department_id"
         }
     ])
 
     .then(answer => {
-        var query = "INSERT INTO job (title,salary,department_id) VALUES(?,?,?)";
+        var query = "INSERT INTO job (title, salary, department_id) VALUES(?,?,?)";
+        "INSERT INTO department SET ?", {
+            name: answer.jobName,
+            name: answer.salary,
+            name: answer.department_id
+        },
         connection.query(query, [answer.title, answer.salary, answer.department_id], (err, res) => {
-            if (err) throw err;
             connection.query("SELECT * FROM job WHERE title=?", answer.title, (err, res) => {
-                if (err) throw err;
                 console.table(answer);
 
                 runApplication();
