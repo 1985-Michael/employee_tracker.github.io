@@ -24,11 +24,11 @@ CREATE TABLE employee
 (
     
 id INTEGER NOT NULL AUTO_INCREMENT,
-first_name VARCHAR (30) NULL,
-last_name VARCHAR (30) NULL,
-job_id INT (30) NULL,
+first_name VARCHAR (30),
+last_name VARCHAR (30),
+job_id INT,
 PRIMARY KEY (id),
-FOREIGN KEY (job_id) REFERENCES job(id)
+--FOREIGN KEY (job_id) REFERENCES job (id)
 );
 
 

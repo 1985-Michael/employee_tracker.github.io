@@ -15,7 +15,7 @@ const connection = mysql.createConnection({
 })
 
 connection.connect(err => {
-
+    if (err) throw (err);
     runApplication();
 
 })
@@ -76,14 +76,11 @@ let runApplication = () => {
     });
 };
 
-runApplication();
-
 function viewdepartments() {
-    let query;
-    query = "SELECT * FROM department";
-    connection.query("SELECT * FROM department (id, title, salary, department_id) VALUES (?, ?, ?, ?)", (err, answer) => {
-
-        console.log("department Retrieved from Database");
+    let query = "SELECT * FROM department";
+    connection.query(query, (err, answer) => {
+        if (err) throw (err);
+        console.log(answer);
         console.table(answer);
         runApplication();
 
@@ -95,6 +92,7 @@ function viewjobs() {
     let query;
     query = "SELECT * FROM job";
     connection.query("SELECT * FROM job, employee", (err, answer) => {
+        if (err) throw (err);
 
         console.log("job Retrieved from Database");
         console.table(answer);
@@ -108,7 +106,7 @@ function viewjobs() {
 function viewemployees() {
     let query = "SELECT * FROM employee";
     connection.query(query, function(err, answer) {
-
+        if (err) throw (err);
         console.log("employee Retrieved from Database");
         console.table(answer);
 
@@ -122,36 +120,40 @@ function viewemployees() {
 
 function addemployee() {
     inquirer.prompt([{
-            type: "input",
-            message: "employee's Name",
-            name: "first_name"
-        },
+                type: "input",
+                name: "first_name",
+                message: "employee's Name"
 
-        {
-            type: "input",
-            message: "employee's last name",
-            name: "last_name"
-        },
-        {
+            },
 
-            type: "input",
-            message: "employee'job",
-            name: "job_id"
-        }
-    ])
+            {
+                type: "input",
+                name: "last_name",
+                message: "employee's last name"
 
-    .then(answer => {
-        var query = "INSERT INTO employee (first_name, last_name, job_id) VALUES (?, ?, ? )";
-        connection.query(query, [answer.firstname, answer.lastname, answer.jobid], (err, res) => {
-            console.log("New Employee has been added");
+            },
+            {
 
-            console.table(answer);
+                type: "number",
+                name: "job_id",
+                message: "employee'job"
+
+            }
+        ])
+        .then(answer => {
+            var query = "INSERT INTO employee (first_name, last_name, job_id) VALUES (?, ?, ?)";
+            connection.query(query, [answer.first_name, answer.last_name, answer.job_id], (err, answer) => {
+                if (err) throw (err);
+
+                console.log([answer.first_name, answer.last_name, answer.job_id]);
+
+                console.table();
 
 
-            runApplication();
+                runApplication();
 
+            });
         });
-    });
 }
 
 function updateemployee() {
@@ -174,7 +176,8 @@ function updateemployee() {
             name: answer.update,
             name: answer.newjob
         },
-        connection.query(query, [answer.newjob, answer.update], (err, res) => {
+        connection.query(query, [answer.newjob, answer.update], (err, answer) => {
+            if (err) throw (err);
             console.log("Job has been updated");
             console.table(answer);
 
@@ -210,8 +213,9 @@ function addjob() {
             name: answer.salary,
             name: answer.department_id
         },
-        connection.query(query, [answer.jobName, answer.salary, answer.department_id], (err, res) => {
-            connection.query("SELECT * FROM job WHERE title=?", (err, res) => {
+        connection.query(query, [answer.jobName, answer.salary, answer.department_id], (err, answer) => {
+            if (err) throw (err);
+            connection.query("SELECT * FROM job WHERE title=?", (err, answer) => {
                 console.table(answer);
 
                 runApplication();
