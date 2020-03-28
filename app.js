@@ -10,7 +10,6 @@ const connection = mysql.createConnection({
 
     user: "root",
     password: "Michael27$",
-
     database: "company_DB",
 
 })
@@ -83,12 +82,13 @@ function viewdepartments() {
     let query;
     query = "SELECT * FROM department";
     connection.query("SELECT * FROM department, department id", (err, answer) => {
-        console.log("departments Retrieved from Database");
+        console.log("department Retrieved from Database");
         console.table(answer);
 
-    });
+        runApplication();
 
-    runApplication();
+
+    });
 }
 
 function viewjobs() {
@@ -97,51 +97,61 @@ function viewjobs() {
     connection.query("SELECT * FROM job, employee", (err, answer) => {
         console.log("job Retrieved from Database");
         console.table(answer);
+
+        runApplication();
+
     });
 
-    runApplication();
 }
 
 function viewemployees() {
     let query = "SELECT * FROM employee";
     connection.query(query, function(err, answer) {
+        console.log("employee Retrieved from Database");
         console.table(answer);
+
+        runApplication();
 
     });
 
-    runApplication();
+
 }
 
 
 function addemployee() {
-    inquirer
-        .prompt([{
-                type: "input",
-                message: "first name of the employee?",
-                name: "FirstName"
-            },
-            {
-                type: "input",
-                message: "last name of the employee?",
-                name: "LastName"
-            },
-            {
-                type: "input",
-                message: "employee's job id number?",
-                name: "jobID"
-            },
+    inquirer.prompt([{
+            name: "first_name",
+            type: "input",
+            message: "first name of the new employee"
+        },
+        {
+            name: "last_name",
+            type: "input",
+            message: "last name of the employee"
+        },
+        {
+            name: "job_id",
+            type: "number",
+            message: "Enter the job this employee will have"
+        },
+        {
 
-        ])
-        .then(answer => {
+        }
+    ])
 
-
-            connection.query("INSERT INTO employee (first_name, last_name, job_id,) VALUES (?, ?, ?,)", [answer.FirstName, answer.LastName, answer.jobID], (err, res) => {
+    .then(answer => {
+        var query = "INSERT INTO employee (first_name, last_name, job_id) VALUES(?,?,?)";
+        connection.query(query, [answer.first_name, answer.last_name, answer.job_id], (err, res) => {
+            if (err) throw err;
+            connection.query("SELECT * FROM employee WHERE last_name=?", answer.last_name, (err, res) => {
                 if (err) throw err;
                 console.table(answer);
 
                 runApplication();
+
             });
         });
+    })
 }
 
 function updateemployee() {
@@ -159,7 +169,10 @@ function updateemployee() {
     ])
 
     .then(answer => {
-        connection.query('UPDATE employee SET job_id=? WHERE first_name= ?', [answer.newjob, answer.update], (err, answer) => {
+        var query = "UPDATE employee SET job_id = ? WHERE id = ?;";
+        connection.query(query, [answer.newRole, answer.employee], (err, res) => {
+            if (err) throw err;
+            console.log("Job has been updated");
             console.table(answer);
 
             runApplication();
@@ -167,6 +180,7 @@ function updateemployee() {
         });
     });
 }
+
 
 function addjob() {
     inquirer.prompt([{
@@ -187,12 +201,16 @@ function addjob() {
     ])
 
     .then(answer => {
-        connection.query("INSERT INTO job (title, salary, department_id) VALUES (?, ?, ?)", [answer.jobName, answer.salary, answer.departmentID], (err, res) => {
+        var query = "INSERT INTO job (title,salary,department_id) VALUES(?,?,?)";
+        connection.query(query, [answer.title, answer.salary, answer.department_id], (err, res) => {
             if (err) throw err;
-            console.table(answer);
+            connection.query("SELECT * FROM job WHERE title=?", answer.title, (err, res) => {
+                if (err) throw err;
+                console.table(answer);
 
-            runApplication();
+                runApplication();
 
+            });
         });
     });
 }
