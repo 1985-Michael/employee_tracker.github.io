@@ -117,17 +117,17 @@ function addemployee() {
     inquirer
         .prompt([{
                 type: "input",
-                message: "What's the first name of the employee?",
+                message: "first name of the employee?",
                 name: "FirstName"
             },
             {
                 type: "input",
-                message: "What's the last name of the employee?",
+                message: "last name of the employee?",
                 name: "LastName"
             },
             {
                 type: "input",
-                message: "What is the employee's job id number?",
+                message: "employee's job id number?",
                 name: "jobID"
             },
 
@@ -138,6 +138,7 @@ function addemployee() {
             connection.query("INSERT INTO employee (first_name, last_name, job_id,) VALUES (?, ?, ?,)", [answer.FirstName, answer.LastName, answer.jobID], (err, res) => {
                 if (err) throw err;
                 console.table(answer);
+
                 runApplication();
             });
         });
@@ -145,73 +146,80 @@ function addemployee() {
 
 function updateemployee() {
     inquirer.prompt([{
-                type: "input",
-                message: "update employee?",
-                name: "update"
-            },
+            type: "input",
+            message: "update employee?",
+            name: "update"
+        },
 
-            {
-                type: "input",
-                message: "What will be the new current job?",
-                name: "newjob"
-            }
-        ])
-        .then(answer => {
-            connection.query('UPDATE employee SET job_id=? WHERE first_name= ?', [answer.newjob, answer.update], (err, answer) => {
-                console.table(answer);
-                runApplication();
-            });
+        {
+            type: "input",
+            message: "What will be the new current job?",
+            name: "newjob"
+        }
+    ])
+
+    .then(answer => {
+        connection.query('UPDATE employee SET job_id=? WHERE first_name= ?', [answer.newjob, answer.update], (err, answer) => {
+            console.table(answer);
+
+            runApplication();
+
         });
+    });
 }
 
 function addjob() {
-    inquirer
-        .prompt([{
-                type: "input",
-                message: "What's the name of the role?",
-                name: "jobName"
-            },
-            {
-                type: "input",
-                message: "What is the salary for this role?",
-                name: "salary"
-            },
-            {
-                type: "input",
-                message: "What is the department id number?",
-                name: "departmentID"
-            }
-        ])
-        .then(function(answer) {
+    inquirer.prompt([{
+            type: "input",
+            message: "What's the name of the role?",
+            name: "jobName"
+        },
+        {
+            type: "input",
+            message: "What is the salary for this role?",
+            name: "salary"
+        },
+        {
+            type: "input",
+            message: "What is the department id number?",
+            name: "departmentID"
+        }
+    ])
 
+    .then(answer => {
+        connection.query("INSERT INTO job (title, salary, department_id) VALUES (?, ?, ?)", [answer.jobName, answer.salary, answer.departmentID], (err, res) => {
+            if (err) throw err;
+            console.table(answer);
 
-            connection.query("INSERT INTO job (title, salary, department_id) VALUES (?, ?, ?)", [answer.jobName, answer.salary, answer.departmentID], (err, res) => {
-                if (err) throw err;
-                console.table(res);
-                runApplication();
-            });
+            runApplication();
+
         });
+    });
 }
 
 function adddepartment() {
     inquirer.prompt({
-            type: "input",
-            message: "enter new department name",
-            name: "departmentname"
-        })
-        .then(answer => {
-            connection.query(
-                    "INSERT INTO department SET ?", {
-                        name: answer.deptpartmentname
-                    },
-                    function(err, answer) {
-                        if (err) {
-                            throw err;
-                        }
-                    }
-                ),
-                console.table(answer);
+        type: "input",
+        message: "enter new department name",
+        name: "departmentname"
 
-            runApplication();
-        });
+    })
+
+    .then(answer => {
+        connection.query(
+                "INSERT INTO department SET ?", {
+                    name: answer.departmentname
+                },
+
+                function(err, answer) {
+                    if (err) {
+                        throw err;
+                    }
+                }
+            ),
+
+            console.table(answer);
+
+        runApplication();
+    });
 }
