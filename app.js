@@ -120,44 +120,39 @@ function viewemployees() {
 
 function addemployee() {
     inquirer.prompt([{
-
             type: "input",
-            message: "first name of the new employee",
-            name: "first_name"
+            message: "employee's Name",
+            name: "firstname"
+        },
+
+        {
+            type: "input",
+            message: "employee's last name",
+            name: "lastname"
         },
         {
 
             type: "input",
-            message: "last name of the employee",
-            name: "last_name",
-        },
-        {
-
-            type: "input",
-            message: "Enter the job this employee will have",
-            name: "job_id",
-        },
-        {
-
+            message: "employee's last name",
+            name: "empjob"
         }
     ])
 
     .then(answer => {
-        var query = "INSERT INTO employee (first_name, last_name, job_id) VALUES(?,?,?)";
-        "INSERT INTO department SET ?", {
-            name: answer.first_name,
-            name: answer.last_name,
-            name: answer.job_id
+        var query = "UPDATE employee SET job_id = ? WHERE id = ?;";
+        "INSERT INTO department SET ?,", {
+            name: answer.firstname,
+            name: answer.lastname,
+            name: answer.empjob
         },
-        connection.query(query, [answer.first_name, answer.last_name, answer.job_id], (err, res) => {
-            connection.query("SELECT * FROM employee WHERE last_name=?", answer.last_name, (err, res) => {
-                console.table(answer);
+        connection.query(query, [answer.lastname, answer.firstname, answer.empjob], (err, res) => {
+            console.log("New Employee has been added");
+            console.table(answer);
 
-                runApplication();
+            runApplication();
 
-            });
         });
-    })
+    });
 }
 
 function updateemployee() {
@@ -180,7 +175,7 @@ function updateemployee() {
             name: answer.update,
             name: answer.newjob
         },
-        connection.query(query, [answer.newjob, answer.employee], (err, res) => {
+        connection.query(query, [answer.newjob, answer.update], (err, res) => {
             console.log("Job has been updated");
             console.table(answer);
 
@@ -216,8 +211,8 @@ function addjob() {
             name: answer.salary,
             name: answer.department_id
         },
-        connection.query(query, [answer.title, answer.salary, answer.department_id], (err, res) => {
-            connection.query("SELECT * FROM job WHERE title=?", answer.title, (err, res) => {
+        connection.query(query, [answer.jobName, answer.salary, answer.department_id], (err, res) => {
+            connection.query("SELECT * FROM job WHERE title=?", answer.jobName, (err, res) => {
                 console.table(answer);
 
                 runApplication();
