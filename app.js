@@ -81,10 +81,10 @@ runApplication();
 function viewdepartments() {
     let query;
     query = "SELECT * FROM department";
-    connection.query("SELECT * FROM department, department id", (err, answer) => {
+    connection.query("SELECT * FROM department (id, title, salary, department_id) VALUES (?, ?, ?, ?)", (err, answer) => {
+
         console.log("department Retrieved from Database");
         console.table(answer);
-
         runApplication();
 
 
@@ -95,6 +95,7 @@ function viewjobs() {
     let query;
     query = "SELECT * FROM job";
     connection.query("SELECT * FROM job, employee", (err, answer) => {
+
         console.log("job Retrieved from Database");
         console.table(answer);
 
@@ -107,6 +108,7 @@ function viewjobs() {
 function viewemployees() {
     let query = "SELECT * FROM employee";
     connection.query(query, function(err, answer) {
+
         console.log("employee Retrieved from Database");
         console.table(answer);
 
@@ -122,32 +124,29 @@ function addemployee() {
     inquirer.prompt([{
             type: "input",
             message: "employee's Name",
-            name: "firstname"
+            name: "first_name"
         },
 
         {
             type: "input",
             message: "employee's last name",
-            name: "lastname"
+            name: "last_name"
         },
         {
 
             type: "input",
-            message: "employee's last name",
-            name: "empjob"
+            message: "employee'job",
+            name: "job_id"
         }
     ])
 
     .then(answer => {
-        var query = "UPDATE employee SET job_id = ? WHERE id = ?;";
-        "INSERT INTO department SET ?,", {
-            name: answer.firstname,
-            name: answer.lastname,
-            name: answer.empjob
-        },
-        connection.query(query, [answer.lastname, answer.firstname, answer.empjob], (err, res) => {
+        var query = "INSERT INTO employee (first_name, last_name, job_id) VALUES (?, ?, ? )";
+        connection.query(query, [answer.firstname, answer.lastname, answer.jobid], (err, res) => {
             console.log("New Employee has been added");
+
             console.table(answer);
+
 
             runApplication();
 
@@ -212,7 +211,7 @@ function addjob() {
             name: answer.department_id
         },
         connection.query(query, [answer.jobName, answer.salary, answer.department_id], (err, res) => {
-            connection.query("SELECT * FROM job WHERE title=?", answer.jobName, (err, res) => {
+            connection.query("SELECT * FROM job WHERE title=?", (err, res) => {
                 console.table(answer);
 
                 runApplication();

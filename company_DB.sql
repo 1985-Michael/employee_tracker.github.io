@@ -2,22 +2,13 @@ DROP DATABASE IF EXISTS company_DB;
 CREATE DATABASE company_DB;
 USE company_DB;
 
-CREATE TABLE employee
-(
-id INTEGER NOT NULL AUTO_INCREMENT,
-first_name VARCHAR (30) NULL,
-last_name VARCHAR (30) NULL,
-job_id INT (30) NULL,
-PRIMARY KEY (id),
-FOREIGN KEY (job_id) REFERENCES job(id)
-);
-
 CREATE TABLE department
 (
 id INTEGER AUTO_INCREMENT NOT NULL,
 name VARCHAR (30) NULL,
 PRIMARY KEY (id)
 );
+
 
 CREATE TABLE job
 (
@@ -28,6 +19,19 @@ department_id INT NOT NULL,
 PRIMARY KEY (id),
 FOREIGN KEY (department_id) REFERENCES department (id)
 );
+
+CREATE TABLE employee
+(
+    
+id INTEGER NOT NULL AUTO_INCREMENT,
+first_name VARCHAR (30) NULL,
+last_name VARCHAR (30) NULL,
+job_id INT (30) NULL,
+PRIMARY KEY (id),
+FOREIGN KEY (job_id) REFERENCES job(id)
+);
+
+
 
 SELECT *
 FROM department;
